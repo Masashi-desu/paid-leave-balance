@@ -72,12 +72,22 @@
           aria-labelledby="input-view-tab"
           data-view-panel="input"
         >
-          <main class="layout">
+          <main class="layout layout-single">
             <section class="panel form-panel">
               <div class="section-heading">
                 <div>
                   <p class="section-label">Input</p>
-                  <h2>入力</h2>
+                  <div class="heading-with-tooltip">
+                    <h2>入力</h2>
+                    <div class="tooltip" tabindex="0">
+                      <button type="button" class="tooltip-trigger" aria-label="付与サイクルの説明">
+                        ?
+                      </button>
+                      <div class="tooltip-bubble">
+                        付与サイクルは各法定付与日から次回付与日の前日までの期間です。現在サイクルは直近の法定付与日から基準日までを指します。
+                      </div>
+                    </div>
+                  </div>
                 </div>
                 <p class="section-note">
                   このアプリの「付与サイクル」は、法定付与日から次回付与日の前日までの1年間です。消化日数は 0.5 日刻みで入力します。
@@ -86,7 +96,17 @@
 
               <form id="calculator-form" novalidate>
                 <section class="form-block">
-                  <h3>1. 基本情報</h3>
+                  <div class="subheading-with-tooltip">
+                    <h3>1. 基本情報</h3>
+                    <div class="tooltip tooltip-inline" tabindex="0">
+                      <button type="button" class="tooltip-trigger" aria-label="法定付与の前提">
+                        ?
+                      </button>
+                      <div class="tooltip-bubble">
+                        週5日以上は通常の法定付与表、週4日以下は一般的な比例付与表で計算します。出勤率80%以上は満たしている前提です。
+                      </div>
+                    </div>
+                  </div>
                   <div class="field-grid">
                     <label class="field">
                       <span class="field-label">入社日</span>
@@ -132,7 +152,17 @@
                 </section>
 
                 <section class="form-block">
-                  <h3 id="mode-heading">2. 入力モード切替</h3>
+                  <div class="subheading-with-tooltip">
+                    <h3 id="mode-heading">2. 入力モード切替</h3>
+                    <div class="tooltip tooltip-inline" tabindex="0">
+                      <button type="button" class="tooltip-trigger" aria-label="モードの違い">
+                        ?
+                      </button>
+                      <div class="tooltip-bubble">
+                        モードAは直近3サイクルの消化を古い付与から順に反映します。モードBは過去の詳細履歴を使わず、前年度からの繰越日数をそのまま有効残として使う簡易計算です。
+                      </div>
+                    </div>
+                  </div>
                   <div class="mode-grid" role="radiogroup" aria-labelledby="mode-heading">
                     <label class="mode-card" data-mode-card="annual">
                       <input type="radio" name="mode" value="annual" checked />
@@ -154,7 +184,17 @@
                 </section>
 
                 <section class="form-block">
-                  <h3>3. 消化・繰越入力</h3>
+                  <div class="subheading-with-tooltip">
+                    <h3>3. 消化・繰越入力</h3>
+                    <div class="tooltip tooltip-inline" tabindex="0">
+                      <button type="button" class="tooltip-trigger" aria-label="消化入力の前提">
+                        ?
+                      </button>
+                      <div class="tooltip-bubble">
+                        消化日数は0.5日刻みです。モードAでは各サイクル入力を古い付与から割り当て、モードBでは繰越から先に消化します。
+                      </div>
+                    </div>
+                  </div>
                   <div class="field-grid consumption-grid">
                     <label class="field field-with-note" id="two-cycles-field">
                       <span class="field-label" id="two-cycles-label">2つ前の付与サイクルの消化日数</span>
@@ -229,36 +269,6 @@
                 </div>
               </form>
             </section>
-
-            <aside class="panel guide-panel">
-              <div class="section-heading">
-                <div>
-                  <p class="section-label">Guide</p>
-                  <h2>計算前提</h2>
-                </div>
-              </div>
-
-              <div class="stacked-card">
-                <h3>モードA</h3>
-                <p>
-                  現在サイクルと直前 2 サイクルの消化入力をもとに、古い付与から順に割り当てます。最古サイクルより前の詳細履歴は再現せず、必要最小限の繰越だけ推定します。
-                </p>
-              </div>
-
-              <div class="stacked-card">
-                <h3>モードB</h3>
-                <p>
-                  詳細履歴の代わりに「前年度からの繰越日数」を直接使う簡易モードです。過去の失効や消化履歴は再現せず、今年度の残数整理に用途を絞っています。
-                </p>
-              </div>
-
-              <div class="stacked-card">
-                <h3>失効ルール</h3>
-                <p>
-                  法定付与分は付与日から 2 年後に失効する前提です。半休は 0.5 日として計算し、会社独自付与は基準日時点で有効な追加分として別加算します。
-                </p>
-              </div>
-            </aside>
           </main>
         </section>
 
@@ -283,7 +293,17 @@
             <div class="section-heading">
               <div>
                 <p class="section-label">Result</p>
-                <h2 id="results-heading">計算結果</h2>
+                <div class="heading-with-tooltip">
+                  <h2 id="results-heading">計算結果</h2>
+                  <div class="tooltip" tabindex="0">
+                    <button type="button" class="tooltip-trigger" aria-label="失効と追加付与の前提">
+                      ?
+                    </button>
+                    <div class="tooltip-bubble">
+                      法定付与分は付与日から2年後に失効します。会社独自付与は履歴として追わず、基準日時点で有効な追加付与として最終残数にのみ加算します。
+                    </div>
+                  </div>
+                </div>
               </div>
               <p class="section-note">要約に加えて、付与・消化・失効の根拠を表形式で確認できます。</p>
             </div>

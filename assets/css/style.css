@@ -159,8 +159,88 @@ input {
   gap: 24px;
 }
 
+.layout-single {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 .panel {
   padding: 28px;
+}
+
+.heading-with-tooltip,
+.subheading-with-tooltip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.tooltip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.tooltip-inline {
+  vertical-align: middle;
+}
+
+.tooltip-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid rgba(15, 106, 105, 0.2);
+  border-radius: 999px;
+  background: rgba(15, 106, 105, 0.08);
+  color: var(--accent-strong);
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: help;
+}
+
+.tooltip-trigger:focus {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(15, 106, 105, 0.12);
+}
+
+.tooltip-bubble {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 0;
+  z-index: 5;
+  width: min(320px, calc(100vw - 48px));
+  padding: 14px 16px;
+  border: 1px solid rgba(35, 56, 58, 0.12);
+  border-radius: 16px;
+  background: rgba(20, 37, 39, 0.96);
+  box-shadow: 0 16px 34px rgba(16, 33, 35, 0.2);
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 0.88rem;
+  line-height: 1.6;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(6px);
+  transition: opacity var(--transition), transform var(--transition);
+}
+
+.tooltip-bubble::before {
+  content: "";
+  position: absolute;
+  top: -7px;
+  left: 12px;
+  width: 14px;
+  height: 14px;
+  background: rgba(20, 37, 39, 0.96);
+  transform: rotate(45deg);
+}
+
+.tooltip:hover .tooltip-bubble,
+.tooltip:focus-within .tooltip-bubble {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
 }
 
 .section-heading {
@@ -326,24 +406,6 @@ input {
 .secondary-button:hover,
 .ghost-button:hover {
   transform: translateY(-1px);
-}
-
-.guide-panel {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.stacked-card {
-  padding: 18px;
-  border-radius: 20px;
-  background: var(--panel-strong);
-  border: 1px solid rgba(35, 56, 58, 0.08);
-}
-
-.stacked-card p {
-  margin: 10px 0 0;
-  color: var(--muted);
 }
 
 .feedback,
@@ -521,6 +583,12 @@ tbody tr:last-child td {
 
   .section-heading {
     flex-direction: column;
+  }
+
+  .heading-with-tooltip,
+  .subheading-with-tooltip {
+    align-items: flex-start;
+    flex-wrap: wrap;
   }
 
   .field-grid,
