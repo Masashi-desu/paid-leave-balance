@@ -22,8 +22,11 @@ const SAMPLE_VALUES = {
 export function initLeaveCalculatorApp() {
   const form = document.querySelector("#calculator-form");
   const feedback = document.querySelector("#feedback");
+  const resultsPlaceholder = document.querySelector("#results-placeholder");
   const warningMessages = document.querySelector("#warning-messages");
   const results = document.querySelector("#results");
+  const viewButtons = Array.from(document.querySelectorAll("[data-view-trigger]"));
+  const viewPanels = Array.from(document.querySelectorAll("[data-view-panel]"));
   const summaryCards = document.querySelector("#summary-cards");
   const rationaleList = document.querySelector("#rationale-list");
   const grantHistoryTable = document.querySelector("#grant-history-table");
@@ -60,6 +63,23 @@ export function initLeaveCalculatorApp() {
 
   let hasCalculated = false;
 
+  const setActiveView = (viewName) => {
+    for (const button of viewButtons) {
+      const isActive = button.dataset.viewTrigger === viewName;
+      button.classList.toggle("is-active", isActive);
+      button.setAttribute("aria-selected", String(isActive));
+    }
+
+    for (const panel of viewPanels) {
+      panel.classList.toggle("is-hidden", panel.dataset.viewPanel !== viewName);
+    }
+  };
+
+  const syncResultsAvailability = () => {
+    results.classList.toggle("is-hidden", !hasCalculated);
+    resultsPlaceholder.classList.toggle("is-hidden", hasCalculated);
+  };
+
   const syncModeUi = () => {
     const mode = getSelectedMode(form);
     modeExplanation.textContent = MODE_EXPLANATIONS[mode];
@@ -72,19 +92,22 @@ export function initLeaveCalculatorApp() {
     applyCycleDescriptors(cycleFields, previewContext.cycleDescriptors, mode);
   };
 
-  const calculateAndRender = () => {
+  const calculateAndRender = ({ switchViewOnSuccess = false } = {}) => {
     const result = calculateLeaveBalance(readFormValues(form));
     feedback.innerHTML = "";
     warningMessages.innerHTML = "";
 
     if (!result.ok) {
+      hasCalculated = false;
+      syncResultsAvailability();
+      setActiveView("input");
       results.classList.add("is-hidden");
       renderMessages(feedback, "error", result.errors);
       return;
     }
 
     hasCalculated = true;
-    results.classList.remove("is-hidden");
+    syncResultsAvailability();
 
     if (result.warnings.length > 0) {
       renderMessages(warningMessages, "warning", result.warnings);
@@ -96,11 +119,15 @@ export function initLeaveCalculatorApp() {
     renderGrantHistory(grantHistoryTable, result.grantHistory);
     renderConsumption(consumptionTable, result.consumptionBreakdown);
     renderExpiration(expirationTable, result.expirationBreakdown);
+
+    if (switchViewOnSuccess) {
+      setActiveView("results");
+    }
   };
 
   form.addEventListener("submit", (event) => {
     event.preventDefault();
-    calculateAndRender();
+    calculateAndRender({ switchViewOnSuccess: true });
   });
 
   form.addEventListener("change", () => {
@@ -117,16 +144,17 @@ export function initLeaveCalculatorApp() {
   document.querySelector("#sample-button").addEventListener("click", () => {
     writeSampleValues(form);
     syncModeUi();
-    calculateAndRender();
+    calculateAndRender({ switchViewOnSuccess: true });
   });
 
   document.querySelector("#reset-button").addEventListener("click", () => {
     window.requestAnimationFrame(() => {
       hasCalculated = false;
       syncModeUi();
+      syncResultsAvailability();
+      setActiveView("input");
       feedback.innerHTML = "";
       warningMessages.innerHTML = "";
-      results.classList.add("is-hidden");
       summaryCards.innerHTML = "";
       rationaleList.innerHTML = "";
       grantHistoryTable.innerHTML = "";
@@ -135,6 +163,14 @@ export function initLeaveCalculatorApp() {
     });
   });
 
+  for (const button of viewButtons) {
+    button.addEventListener("click", () => {
+      setActiveView(button.dataset.viewTrigger);
+    });
+  }
+
+  setActiveView("input");
+  syncResultsAvailability();
   syncModeUi();
 }
 

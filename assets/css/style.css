@@ -51,6 +51,39 @@ input {
   padding: 32px 0 64px;
 }
 
+.segment-shell {
+  margin-bottom: 20px;
+}
+
+.segment-control {
+  display: inline-grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  padding: 6px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: var(--shadow);
+}
+
+.segment-button {
+  min-height: 46px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  font-weight: 700;
+  transition: background-color var(--transition), color var(--transition), box-shadow var(--transition);
+}
+
+.segment-button.is-active {
+  background: linear-gradient(135deg, #0f6a69 0%, #174b5a 100%);
+  color: #fff;
+  box-shadow: 0 10px 22px rgba(15, 106, 105, 0.18);
+}
+
 .hero {
   display: grid;
   grid-template-columns: minmax(0, 1.45fr) minmax(280px, 0.85fr);
@@ -320,7 +353,7 @@ input {
 }
 
 .feedback {
-  margin-top: 24px;
+  margin-bottom: 20px;
 }
 
 .message {
@@ -353,11 +386,17 @@ input {
 }
 
 .results {
-  margin-top: 28px;
+  margin-top: 0;
 }
 
-.results.is-hidden {
+.view-panel.is-hidden,
+.results.is-hidden,
+.placeholder-panel.is-hidden {
   display: none;
+}
+
+.placeholder-panel {
+  min-height: 180px;
 }
 
 .summary-grid {
@@ -489,6 +528,11 @@ tbody tr:last-child td {
   .mode-grid,
   .summary-grid {
     grid-template-columns: 1fr;
+  }
+
+  .segment-control {
+    display: grid;
+    width: 100%;
   }
 
   th,
