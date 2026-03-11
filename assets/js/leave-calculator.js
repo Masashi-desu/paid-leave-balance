@@ -356,13 +356,13 @@ function calculateAnnualMode(context) {
 
   if (inferredCarryover > 0) {
     warnings.push(
-      `モードAでは一昨年より前の詳細履歴を入力しないため、${formatDays(inferredCarryover)} 日分だけ繰越を最小限推定しました。`,
+      `年ごとの消化数を入力する方法では一昨年より前の詳細履歴を入力しないため、${formatDays(inferredCarryover)} 日分だけ繰越を最小限推定しました。`,
     );
   }
 
   if (unresolvedShortage > 0) {
     warnings.push(
-      `入力された消化日数のうち ${formatDays(unresolvedShortage)} 日分は、今年・去年・一昨年の入力だけでは説明しきれません。去年からの繰越日数が分かる場合はモードBの利用を検討してください。`,
+      `入力された消化日数のうち ${formatDays(unresolvedShortage)} 日分は、今年・去年・一昨年の入力だけでは説明しきれません。去年からの繰越日数が分かる場合は、繰越日数のみ入力する方法を検討してください。`,
     );
   }
 
@@ -385,7 +385,7 @@ function calculateAnnualMode(context) {
     rationale: [
       `${getGrantRuleLabel(parsed.weeklyDays)}を使い、入社 6 か月後から毎年の法定付与を生成しました。`,
       "このアプリでは「今年・去年・一昨年」を、各法定付与日から次回付与日の前日までの 1 年区切りとして扱っています。",
-      "モードAでは、今年・去年・一昨年の消化入力を、古い付与から順に割り当てています。",
+      "年ごとの消化数を入力する方法では、今年・去年・一昨年の消化入力を、古い付与から順に割り当てています。",
       "会社独自付与は履歴管理せず、基準日時点で有効な追加付与として残数にのみ加算しています。",
       "法定付与分は付与日から 2 年後に失効する前提で、基準日時点までに残っていた分のみ失効日数へ計上しました。",
     ],
@@ -453,7 +453,7 @@ function calculateCarryoverMode(context) {
     );
   }
 
-  warnings.push("モードBでは去年と一昨年の詳細な消化や失効は再現せず、去年からの繰越入力をそのまま有効日数として扱います。");
+  warnings.push("繰越日数のみ入力する方法では去年と一昨年の詳細な消化や失効は再現せず、去年からの繰越入力をそのまま有効日数として扱います。");
 
   const statutoryBalance = sumRemainingDays(buckets);
   const totalStatutoryGranted = schedule.grants.reduce((sum, grant) => sum + grant.grantedDays, 0);
@@ -471,10 +471,10 @@ function calculateCarryoverMode(context) {
     }),
     rationale: [
       `${getGrantRuleLabel(parsed.weeklyDays)}を使い、今年までの法定付与日だけを履歴として生成しました。`,
-      "モードBでは、去年からの繰越日数入力を現在も有効な残日数として扱い、今年の消化はその繰越から先に差し引いています。",
+      "繰越日数のみ入力する方法では、去年からの繰越日数入力を現在も有効な残日数として扱い、今年の消化はその繰越から先に差し引いています。",
       "去年と一昨年の詳細消化や失効は再現していないため、失効日数は今回再現分のみ 0 日表示になります。",
       "会社独自付与は履歴管理せず、基準日時点で有効な追加付与として残数にのみ加算しています。",
-      "法定付与分の有効期限自体は 2 年ルールを前提にしていますが、モードBでは過去の失効再現を簡略化しています。",
+      "法定付与分の有効期限自体は 2 年ルールを前提にしていますが、繰越日数のみ入力する方法では過去の失効再現を簡略化しています。",
     ],
     grantHistory: trackingRows.map((row, index) =>
       toGrantHistoryRecord(

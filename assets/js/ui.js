@@ -291,8 +291,8 @@ function applyCycleDescriptors(cycleFields, cycleDescriptors, mode) {
   cycleFields.carryover.container.classList.toggle("is-disabled", !carryoverEnabled);
   cycleFields.carryover.hint.textContent =
     mode === "carryover"
-      ? "モードB専用です。会社の管理表などで分かる、去年からの有効な繰越日数を入力します。"
-      : "モードAでは使用しません。モードBに切り替えると入力できます。";
+      ? "繰越日数のみ入力する方法で使います。会社の管理表などで分かる、去年からの有効な繰越日数を入力します。"
+      : "年ごとの消化数を入力する方法では使いません。繰越日数のみ入力する方法に切り替えると入力できます。";
 }
 
 function renderMessages(target, type, messages) {
