@@ -71,17 +71,17 @@
                   <div class="heading-with-tooltip">
                     <h2>入力</h2>
                     <div class="tooltip" tabindex="0">
-                      <button type="button" class="tooltip-trigger" aria-label="付与サイクルの説明">
+                      <button type="button" class="tooltip-trigger" aria-label="今年・去年・一昨年の考え方">
                         ?
                       </button>
                       <div class="tooltip-bubble">
-                        付与サイクルは各法定付与日から次回付与日の前日までの期間です。現在サイクルは直近の法定付与日から基準日までを指します。
+                        このアプリの「今年・去年・一昨年」は、カレンダー年ではなく、各法定付与日から次回付与日の前日までの 1 年区切りです。「今年」は直近の法定付与日から基準日までを指します。
                       </div>
                     </div>
                   </div>
                 </div>
                 <p class="section-note">
-                  このアプリの「付与サイクル」は、法定付与日から次回付与日の前日までの1年間です。消化日数は 0.5 日刻みで入力します。
+                  ここでの「今年・去年・一昨年」は、有休の付与日を起点にした 1 年区切りです。消化日数は 0.5 日刻みで入力します。
                 </p>
               </div>
 
@@ -150,7 +150,7 @@
                         ?
                       </button>
                       <div class="tooltip-bubble">
-                        モードAは直近3サイクルの消化を古い付与から順に反映します。モードBは過去の詳細履歴を使わず、前年度からの繰越日数をそのまま有効残として使う簡易計算です。
+                        モードAは今年・去年・一昨年の消化を古い付与から順に反映します。モードBは過去の詳細履歴を使わず、去年からの繰越日数をそのまま有効残として使う簡易計算です。
                       </div>
                     </div>
                   </div>
@@ -159,7 +159,7 @@
                       <input type="radio" name="mode" value="annual" checked />
                       <span class="mode-title">年ごとの消化数を入力する</span>
                       <span class="mode-copy">
-                        現在の付与サイクルと、その直前 2 サイクルの消化日数を入力します。古い付与から順に消化へ割り当てます。
+                        今年・去年・一昨年の消化日数を入力します。古い付与から順に消化へ割り当てます。
                       </span>
                     </label>
 
@@ -167,7 +167,7 @@
                       <input type="radio" name="mode" value="carryover" />
                       <span class="mode-title">繰越日数のみを入力する</span>
                       <span class="mode-copy">
-                        過去の詳細な消化履歴が不明な場合の簡易モードです。前年度からの繰越日数と当年度消化のみで残数を見積もります。
+                        過去の詳細な消化履歴が不明な場合の簡易モードです。去年からの繰越日数と今年の消化だけで残数を見積もります。
                       </span>
                     </label>
                   </div>
@@ -182,13 +182,13 @@
                         ?
                       </button>
                       <div class="tooltip-bubble">
-                        消化日数は0.5日刻みです。モードAでは各サイクル入力を古い付与から割り当て、モードBでは繰越から先に消化します。
+                        消化日数は 0.5 日刻みです。モードAでは今年・去年・一昨年の入力を古い付与から割り当て、モードBでは去年からの繰越から先に消化します。
                       </div>
                     </div>
                   </div>
                   <div class="field-grid consumption-grid">
                     <label class="field field-with-note" id="two-cycles-field">
-                      <span class="field-label" id="two-cycles-label">2つ前の付与サイクルの消化日数</span>
+                      <span class="field-label" id="two-cycles-label">一昨年の有休消化数</span>
                       <input
                         id="two-cycles-used"
                         name="twoCyclesAgoUsed"
@@ -204,7 +204,7 @@
                     </label>
 
                     <label class="field field-with-note" id="previous-cycle-field">
-                      <span class="field-label" id="previous-cycle-label">1つ前の付与サイクルの消化日数</span>
+                      <span class="field-label" id="previous-cycle-label">去年の有休消化数</span>
                       <input
                         id="previous-cycle-used"
                         name="previousCycleUsed"
@@ -220,7 +220,7 @@
                     </label>
 
                     <label class="field field-with-note" id="current-cycle-field">
-                      <span class="field-label" id="current-cycle-label">現在の付与サイクルの消化日数</span>
+                      <span class="field-label" id="current-cycle-label">今年の有休消化数</span>
                       <input
                         id="current-cycle-used"
                         name="currentCycleUsed"
@@ -236,7 +236,7 @@
                     </label>
 
                     <label class="field field-with-note" id="carryover-field">
-                      <span class="field-label">前年度からの繰越日数</span>
+                      <span class="field-label">去年からの繰越日数</span>
                       <input
                         id="carryover-days"
                         name="carryoverDays"
@@ -247,7 +247,7 @@
                         value="0"
                       />
                       <span class="field-hint" id="carryover-hint">
-                        モードB専用です。会社の管理表などで把握している現時点有効な繰越日数を入力します。
+                        モードB専用です。会社の管理表などで分かる、去年からの有効な繰越日数を入力します。
                       </span>
                     </label>
                   </div>
@@ -319,7 +319,7 @@
               <article class="panel table-panel">
                 <div class="table-heading">
                   <h3>消化反映一覧</h3>
-                  <p>各サイクルの入力値を、古い付与からどのように割り当てたかを表示します。</p>
+                  <p>今年・去年・一昨年の入力値を、古い付与からどのように割り当てたかを表示します。</p>
                 </div>
                 <div id="consumption-table"></div>
               </article>

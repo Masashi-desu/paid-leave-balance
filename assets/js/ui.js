@@ -2,9 +2,9 @@ import { buildCalculatorContext, calculateLeaveBalance } from "./leave-calculato
 
 const MODE_EXPLANATIONS = {
   annual:
-    "モードAでは、現在サイクル・1つ前・2つ前の付与サイクルに対応する消化日数を入力します。古い付与から順に消化へ割り当て、必要最小限の繰越だけ推定します。",
+    "モードAでは、今年・去年・一昨年の有休消化数を入力します。古い付与から順に差し引き、必要最小限の繰越だけ推定します。",
   carryover:
-    "モードBでは、過去 2 サイクルの消化欄を無効化し、前年度からの繰越日数だけを使う簡易計算に切り替えます。会社の管理表などで把握している繰越日数がある場合に使います。",
+    "モードBでは、一昨年と去年の入力欄を止めて、去年からの繰越日数だけを使う簡易計算に切り替えます。会社の管理表などで繰越日数が分かる場合に使います。",
 };
 
 const SAMPLE_VALUES = {
@@ -302,7 +302,7 @@ function applyCycleDescriptors(cycleFields, cycleDescriptors, mode) {
   cycleFields.carryover.container.classList.toggle("is-disabled", !carryoverEnabled);
   cycleFields.carryover.hint.textContent =
     mode === "carryover"
-      ? "モードB専用です。会社の管理表などで把握している現時点有効な繰越日数を入力します。"
+      ? "モードB専用です。会社の管理表などで分かる、去年からの有効な繰越日数を入力します。"
       : "モードAでは使用しません。モードBに切り替えると入力できます。";
 }
 
@@ -390,12 +390,12 @@ function renderGrantHistory(target, rows) {
 
 function renderConsumption(target, rows) {
   if (!rows || rows.length === 0) {
-    target.innerHTML = '<div class="empty-state">今回の入力で消化反映された付与サイクルはありません。</div>';
+    target.innerHTML = '<div class="empty-state">今回の入力で消化反映された期間はありません。</div>';
     return;
   }
 
   target.innerHTML = renderTable(
-    ["対象サイクル", "対象期間", "入力日数", "反映日数", "割当先", "備考"],
+    ["対象区分", "対象期間", "入力日数", "反映日数", "割当先", "備考"],
     rows.map((row) => [row.cycle, row.period, row.inputDays, row.appliedDays, row.allocation, row.note]),
   );
 }

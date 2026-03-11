@@ -13,9 +13,9 @@ const MODE_ANNUAL = "annual";
 const MODE_CARRYOVER = "carryover";
 
 const CYCLE_META = [
-  { key: "twoCyclesAgo", offset: 2, title: "2つ前の付与サイクル" },
-  { key: "previousCycle", offset: 1, title: "1つ前の付与サイクル" },
-  { key: "currentCycle", offset: 0, title: "現在の付与サイクル" },
+  { key: "twoCyclesAgo", offset: 2, title: "一昨年", inputLabel: "一昨年の有休消化数" },
+  { key: "previousCycle", offset: 1, title: "去年", inputLabel: "去年の有休消化数" },
+  { key: "currentCycle", offset: 0, title: "今年", inputLabel: "今年の有休消化数" },
 ];
 
 export function formatDays(value) {
@@ -120,10 +120,10 @@ function validateNumericalInputs(parsed, cycleDescriptors) {
   const errors = [];
   const numericLabels = [
     { value: parsed.additionalGrantDays, label: "会社独自付与日数" },
-    { value: parsed.twoCyclesAgoUsed, label: "2つ前の付与サイクルの消化日数" },
-    { value: parsed.previousCycleUsed, label: "1つ前の付与サイクルの消化日数" },
-    { value: parsed.currentCycleUsed, label: "現在の付与サイクルの消化日数" },
-    { value: parsed.carryoverDays, label: "前年度からの繰越日数" },
+    { value: parsed.twoCyclesAgoUsed, label: "一昨年の有休消化数" },
+    { value: parsed.previousCycleUsed, label: "去年の有休消化数" },
+    { value: parsed.currentCycleUsed, label: "今年の有休消化数" },
+    { value: parsed.carryoverDays, label: "去年からの繰越日数" },
   ];
 
   for (const item of numericLabels) {
@@ -139,16 +139,16 @@ function validateNumericalInputs(parsed, cycleDescriptors) {
 
   const descriptorByKey = Object.fromEntries(cycleDescriptors.map((descriptor) => [descriptor.key, descriptor]));
   if (!descriptorByKey.twoCyclesAgo.exists && parsed.twoCyclesAgoUsed > 0) {
-    errors.push("2つ前の付与サイクルが存在しないため、その消化日数は 0 のままにしてください。");
+    errors.push("一昨年の入力対象がまだないため、その消化日数は 0 のままにしてください。");
   }
   if (!descriptorByKey.previousCycle.exists && parsed.previousCycleUsed > 0) {
-    errors.push("1つ前の付与サイクルが存在しないため、その消化日数は 0 のままにしてください。");
+    errors.push("去年の入力対象がまだないため、その消化日数は 0 のままにしてください。");
   }
   if (!descriptorByKey.currentCycle.exists && parsed.currentCycleUsed > 0) {
-    errors.push("現在の付与サイクルがまだ始まっていないため、その消化日数は 0 のままにしてください。");
+    errors.push("今年の入力対象がまだ始まっていないため、その消化日数は 0 のままにしてください。");
   }
   if (!descriptorByKey.currentCycle.exists && parsed.carryoverDays > 0) {
-    errors.push("現在の付与サイクルがまだ始まっていないため、前年度からの繰越日数は 0 のままにしてください。");
+    errors.push("今年の入力対象がまだ始まっていないため、去年からの繰越日数は 0 のままにしてください。");
   }
 
   return errors;
@@ -192,19 +192,19 @@ function buildFallbackCycleDescriptors(parsed) {
         title: meta.title,
         exists: false,
         isCurrentCycle: true,
-        label: `${meta.title}（初回付与前）`,
+        label: `${meta.inputLabel}（初回付与前）`,
         helperText: `初回の法定付与予定日は ${formatDate(firstGrantDate)} です。`,
       };
     }
 
-    return {
-      key: meta.key,
-      title: meta.title,
-      exists: false,
-      isCurrentCycle: meta.key === "currentCycle",
-      label: meta.title,
-      helperText: "入社日と計算基準日を入力すると対象期間を表示します。",
-    };
+      return {
+        key: meta.key,
+        title: meta.title,
+        exists: false,
+        isCurrentCycle: meta.key === "currentCycle",
+        label: meta.inputLabel,
+        helperText: "入社日と計算基準日を入力すると対象期間を表示します。",
+      };
   });
 }
 
@@ -225,8 +225,8 @@ function buildCycleDescriptors(grants, nextGrantDate, baseDate) {
         title: meta.title,
         exists: false,
         isCurrentCycle: meta.key === "currentCycle",
-        label: `${meta.title}（該当なし）`,
-        helperText: "この付与サイクルはまだ存在しません。0 日のままにしてください。",
+        label: `${meta.inputLabel}（該当なし）`,
+        helperText: "この年の入力対象はまだありません。0 日のままにしてください。",
       };
     }
 
@@ -246,11 +246,11 @@ function buildCycleDescriptors(grants, nextGrantDate, baseDate) {
       exists: true,
       isCurrentCycle: meta.key === "currentCycle",
       grantIndex,
-      label: `${meta.title}（${formatDateRange(startDate, fullCycleEndDate)}）`,
+      label: `${meta.inputLabel}（${formatDateRange(startDate, fullCycleEndDate)}）`,
       helperText:
         grantIndex === currentGrantIndex
-          ? `${formatDate(startDate)} から基準日 ${formatDate(baseDate)} までに消化した日数を入力します。`
-          : `${formatDateRange(startDate, rangeEndDate)} に消化した日数を入力します。`,
+          ? `${formatDate(startDate)} から基準日 ${formatDate(baseDate)} までに使った日数を入力します。`
+          : `${formatDateRange(startDate, rangeEndDate)} に使った日数を入力します。`,
       periodLabel: formatDateRange(startDate, rangeEndDate),
     };
   });
@@ -297,7 +297,7 @@ function calculateAnnualMode(context) {
     const currentGrant = schedule.grants[grantIndex];
     const cycleUsed = inputsByIndex.get(grantIndex) ?? 0;
 
-    // 失効は各サイクル境界でのみ起きる前提なので、サイクル開始時点で残日数を整理する。
+    // 失効は各年の切り替わりで整理し、その時点の残日数を確定する。
     expireBucketsAt(schedule.grants[grantIndex].grantDate, buckets, trackingRows, expiryRows);
 
     if (grantIndex === startIndex && startIndex > 0) {
@@ -307,7 +307,7 @@ function calculateAnnualMode(context) {
 
       if (inferredCarryover > 0) {
         trackingRows[startIndex - 1].trackedDays += inferredCarryover;
-        trackingRows[startIndex - 1].treatment = "最古サイクル開始時の推定繰越として一部反映";
+        trackingRows[startIndex - 1].treatment = "今回見る範囲より前からの推定繰越として一部反映";
         buckets.push({
           sourceGrantIndex: startIndex - 1,
           label: `${priorGrant.label}（推定繰越）`,
@@ -337,7 +337,7 @@ function calculateAnnualMode(context) {
     unresolvedShortage += consumption.shortageDays;
 
     consumptionRows.push({
-      cycle: cycleDescriptor ? cycleDescriptor.title : `${formatDate(currentGrant.grantDate)} 開始サイクル`,
+      cycle: cycleDescriptor ? cycleDescriptor.title : `${formatDate(currentGrant.grantDate)} に始まる期間`,
       period: cycleDescriptor?.periodLabel ?? formatDate(currentGrant.grantDate),
       inputDays: `${formatDays(cycleUsed)} 日`,
       appliedDays: `${formatDays(cycleUsed - consumption.shortageDays)} 日`,
@@ -356,13 +356,13 @@ function calculateAnnualMode(context) {
 
   if (inferredCarryover > 0) {
     warnings.push(
-      `モードAでは最古サイクル以前の詳細履歴を入力しないため、${formatDays(inferredCarryover)} 日分だけ繰越を最小限推定しました。`,
+      `モードAでは一昨年より前の詳細履歴を入力しないため、${formatDays(inferredCarryover)} 日分だけ繰越を最小限推定しました。`,
     );
   }
 
   if (unresolvedShortage > 0) {
     warnings.push(
-      `入力された消化日数のうち ${formatDays(unresolvedShortage)} 日分は、直近 3 サイクルだけでは説明しきれません。繰越日数が分かる場合はモードBの利用を検討してください。`,
+      `入力された消化日数のうち ${formatDays(unresolvedShortage)} 日分は、今年・去年・一昨年の入力だけでは説明しきれません。去年からの繰越日数が分かる場合はモードBの利用を検討してください。`,
     );
   }
 
@@ -385,8 +385,8 @@ function calculateAnnualMode(context) {
     }),
     rationale: [
       `${getGrantRuleLabel(parsed.weeklyDays)}を使い、入社 6 か月後から毎年の法定付与を生成しました。`,
-      "付与サイクルは各法定付与日から次回付与日の前日までとし、現在サイクルは付与日から基準日までを消化入力の対象にしました。",
-      "モードAでは、現在サイクルとその直前 2 サイクルの消化入力を、古い付与から順に割り当てています。",
+      "このアプリでは「今年・去年・一昨年」を、各法定付与日から次回付与日の前日までの 1 年区切りとして扱っています。",
+      "モードAでは、今年・去年・一昨年の消化入力を、古い付与から順に割り当てています。",
       "会社独自付与は履歴管理せず、基準日時点で有効な追加付与として残数にのみ加算しています。",
       "法定付与分は付与日から 2 年後に失効する前提で、基準日時点までに残っていた分のみ失効日数へ計上しました。",
     ],
@@ -408,7 +408,7 @@ function calculateCarryoverMode(context) {
   if (parsed.carryoverDays > 0) {
     buckets.push({
       sourceGrantIndex: null,
-      label: "前年度からの繰越入力",
+      label: "去年からの繰越入力",
       remainingDays: parsed.carryoverDays,
       expiryDate: schedule.nextGrantDate,
       inferred: false,
@@ -418,7 +418,7 @@ function calculateCarryoverMode(context) {
   if (currentGrantIndex >= 0) {
     const currentGrant = schedule.grants[currentGrantIndex];
     trackingRows[currentGrantIndex].trackedDays += currentGrant.grantedDays;
-    trackingRows[currentGrantIndex].treatment = "現在サイクルの法定付与として反映";
+    trackingRows[currentGrantIndex].treatment = "今年の法定付与として反映";
     buckets.push({
       sourceGrantIndex: currentGrantIndex,
       label: currentGrant.label,
@@ -434,7 +434,7 @@ function calculateCarryoverMode(context) {
   updateRemainingDays(trackingRows, buckets);
 
   consumptionRows.push({
-    cycle: "現在の付与サイクル",
+    cycle: "今年",
     period:
       currentGrantIndex >= 0
         ? `${formatDate(schedule.grants[currentGrantIndex].grantDate)} から基準日まで`
@@ -444,17 +444,17 @@ function calculateCarryoverMode(context) {
     allocation: consumption.allocationText,
     note:
       parsed.carryoverDays > 0
-        ? "繰越入力を先に消化し、残りを現在サイクルの法定付与へ割り当てました。"
-        : "現在サイクルの法定付与から消化しました。",
+        ? "去年からの繰越入力を先に消化し、残りを今年の法定付与へ割り当てました。"
+        : "今年の法定付与から消化しました。",
   });
 
   if (consumption.shortageDays > 0) {
     warnings.push(
-      `入力された当年度消化のうち ${formatDays(consumption.shortageDays)} 日分は、繰越入力と現在サイクル付与だけでは賄えません。`,
+      `入力された今年の消化のうち ${formatDays(consumption.shortageDays)} 日分は、去年からの繰越入力と今年の付与だけでは賄えません。`,
     );
   }
 
-  warnings.push("モードBでは過去 2 サイクルの詳細消化と失効は再現せず、前年度繰越入力をそのまま有効日数として扱います。");
+  warnings.push("モードBでは去年と一昨年の詳細な消化や失効は再現せず、去年からの繰越入力をそのまま有効日数として扱います。");
 
   const statutoryBalance = sumRemainingDays(buckets);
   const totalStatutoryGranted = schedule.grants.reduce((sum, grant) => sum + grant.grantedDays, 0);
@@ -472,9 +472,9 @@ function calculateCarryoverMode(context) {
       nextGrantDate: schedule.nextGrantDate,
     }),
     rationale: [
-      `${getGrantRuleLabel(parsed.weeklyDays)}を使い、現在サイクルまでの法定付与日だけを履歴として生成しました。`,
-      "モードBでは、前年度からの繰越日数入力を現在も有効な残日数として扱い、当年度消化はその繰越から先に差し引いています。",
-      "過去 2 サイクルの詳細消化や失効は再現していないため、失効日数は今回再現分のみ 0 日表示になります。",
+      `${getGrantRuleLabel(parsed.weeklyDays)}を使い、今年までの法定付与日だけを履歴として生成しました。`,
+      "モードBでは、去年からの繰越日数入力を現在も有効な残日数として扱い、今年の消化はその繰越から先に差し引いています。",
+      "去年と一昨年の詳細消化や失効は再現していないため、失効日数は今回再現分のみ 0 日表示になります。",
       "会社独自付与は履歴管理せず、基準日時点で有効な追加付与として残数にのみ加算しています。",
       "法定付与分の有効期限自体は 2 年ルールを前提にしていますが、モードBでは過去の失効再現を簡略化しています。",
     ],
@@ -486,7 +486,7 @@ function calculateCarryoverMode(context) {
               ...row,
               treatment:
                 index === currentGrantIndex - 1
-                  ? "前年度分の詳細残数は再現せず、繰越入力側でまとめて扱います。"
+                  ? "去年の詳細残数は再現せず、繰越入力側でまとめて扱います。"
                   : row.treatment,
             },
       ),
@@ -517,9 +517,9 @@ function buildSummary({
       note: "履歴ではなく、基準日時点で有効な追加分として別加算しています。",
     },
     {
-      label: "利用可能開始時点の繰越日数",
+      label: "今年のはじめに持ち越していた日数",
       value: `${formatDays(currentCycleCarryover)} 日`,
-      note: "現在の付与サイクル開始時点で使えた繰越分です。",
+      note: "今年の入力期間が始まった時点で使えた繰越分です。",
     },
     {
       label: "総消化日数",
