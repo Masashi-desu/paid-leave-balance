@@ -25,6 +25,7 @@ export function initLeaveCalculatorApp() {
   const resultsPlaceholder = document.querySelector("#results-placeholder");
   const warningMessages = document.querySelector("#warning-messages");
   const results = document.querySelector("#results");
+  const segmentControl = document.querySelector(".segment-control");
   const viewButtons = Array.from(document.querySelectorAll("[data-view-trigger]"));
   const viewPanels = Array.from(document.querySelectorAll("[data-view-panel]"));
   const summaryCards = document.querySelector("#summary-cards");
@@ -62,17 +63,90 @@ export function initLeaveCalculatorApp() {
   };
 
   let hasCalculated = false;
+  let currentView = "input";
+  let viewTransitionToken = 0;
+  const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const panelsByView = Object.fromEntries(viewPanels.map((panel) => [panel.dataset.viewPanel, panel]));
 
-  const setActiveView = (viewName) => {
+  const syncSegmentIndicator = (viewName) => {
+    const activeButton = viewButtons.find((button) => button.dataset.viewTrigger === viewName);
+    if (!activeButton) {
+      return;
+    }
+
+    segmentControl.style.setProperty("--active-left", `${activeButton.offsetLeft}px`);
+    segmentControl.style.setProperty("--active-width", `${activeButton.offsetWidth}px`);
+  };
+
+  const stopViewAnimations = () => {
+    for (const panel of viewPanels) {
+      for (const animation of panel.getAnimations()) {
+        animation.cancel();
+      }
+      panel.style.opacity = "";
+    }
+  };
+
+  const setPanelVisibility = (viewName) => {
+    for (const panel of viewPanels) {
+      panel.classList.toggle("is-hidden", panel.dataset.viewPanel !== viewName);
+      panel.style.opacity = "";
+    }
+    currentView = viewName;
+  };
+
+  const animatePanelFade = async (panel, keyframes) => {
+    const animation = panel.animate(keyframes, {
+      duration: 220,
+      easing: "cubic-bezier(0.22, 1, 0.36, 1)",
+      fill: "both",
+    });
+
+    try {
+      await animation.finished;
+    } catch {
+      // 新しい切替で cancel された場合は何もしない。
+    }
+  };
+
+  const setActiveView = async (viewName, { animate = true, force = false } = {}) => {
     for (const button of viewButtons) {
       const isActive = button.dataset.viewTrigger === viewName;
       button.classList.toggle("is-active", isActive);
       button.setAttribute("aria-selected", String(isActive));
     }
 
-    for (const panel of viewPanels) {
-      panel.classList.toggle("is-hidden", panel.dataset.viewPanel !== viewName);
+    syncSegmentIndicator(viewName);
+
+    if (!force && currentView === viewName) {
+      return;
     }
+
+    const previousPanel = panelsByView[currentView];
+    const nextPanel = panelsByView[viewName];
+    const shouldAnimate = animate && !prefersReducedMotion.matches && previousPanel && nextPanel;
+
+    stopViewAnimations();
+    const token = ++viewTransitionToken;
+
+    if (!shouldAnimate) {
+      setPanelVisibility(viewName);
+      return;
+    }
+
+    if (previousPanel && !previousPanel.classList.contains("is-hidden")) {
+      await animatePanelFade(previousPanel, [{ opacity: 1 }, { opacity: 0 }]);
+    }
+
+    if (token !== viewTransitionToken) {
+      return;
+    }
+
+    previousPanel.classList.add("is-hidden");
+    nextPanel.classList.remove("is-hidden");
+    currentView = viewName;
+    await animatePanelFade(nextPanel, [{ opacity: 0 }, { opacity: 1 }]);
+    nextPanel.style.opacity = "";
   };
 
   const syncResultsAvailability = () => {
@@ -100,7 +174,7 @@ export function initLeaveCalculatorApp() {
     if (!result.ok) {
       hasCalculated = false;
       syncResultsAvailability();
-      setActiveView("input");
+      void setActiveView("input");
       results.classList.add("is-hidden");
       renderMessages(feedback, "error", result.errors);
       return;
@@ -121,7 +195,7 @@ export function initLeaveCalculatorApp() {
     renderExpiration(expirationTable, result.expirationBreakdown);
 
     if (switchViewOnSuccess) {
-      setActiveView("results");
+      void setActiveView("results");
     }
   };
 
@@ -152,7 +226,7 @@ export function initLeaveCalculatorApp() {
       hasCalculated = false;
       syncModeUi();
       syncResultsAvailability();
-      setActiveView("input");
+      void setActiveView("input");
       feedback.innerHTML = "";
       warningMessages.innerHTML = "";
       summaryCards.innerHTML = "";
@@ -165,11 +239,15 @@ export function initLeaveCalculatorApp() {
 
   for (const button of viewButtons) {
     button.addEventListener("click", () => {
-      setActiveView(button.dataset.viewTrigger);
+      void setActiveView(button.dataset.viewTrigger);
     });
   }
 
-  setActiveView("input");
+  window.addEventListener("resize", () => {
+    syncSegmentIndicator(currentView);
+  });
+
+  void setActiveView("input", { animate: false, force: true });
   syncResultsAvailability();
   syncModeUi();
 }
