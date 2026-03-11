@@ -372,7 +372,6 @@ function calculateAnnualMode(context) {
   const totalUsedDays = parsed.twoCyclesAgoUsed + parsed.previousCycleUsed + parsed.currentCycleUsed;
 
   return {
-    modeLabel: "モードA: 年ごとの消化数入力",
     warnings,
     summary: buildSummary({
       totalStatutoryGranted,
@@ -460,7 +459,6 @@ function calculateCarryoverMode(context) {
   const totalStatutoryGranted = schedule.grants.reduce((sum, grant) => sum + grant.grantedDays, 0);
 
   return {
-    modeLabel: "モードB: 繰越日数入力",
     warnings,
     summary: buildSummary({
       totalStatutoryGranted,

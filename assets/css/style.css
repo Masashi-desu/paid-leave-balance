@@ -15,7 +15,6 @@
   --warning-bg: #fff4db;
   --error: #a0222d;
   --error-bg: #ffe4e8;
-  --success: #1f5b3b;
   --shadow: 0 16px 40px rgba(35, 56, 58, 0.08);
   --radius: 24px;
   --radius-sm: 16px;
@@ -458,12 +457,6 @@ input {
   color: var(--warning);
   background: var(--warning-bg);
   border-color: rgba(138, 91, 0, 0.18);
-}
-
-.message.success {
-  color: var(--success);
-  background: rgba(221, 243, 230, 0.92);
-  border-color: rgba(31, 91, 59, 0.14);
 }
 
 .message ul {

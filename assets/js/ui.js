@@ -177,7 +177,6 @@ export function initLeaveCalculatorApp() {
       renderMessages(warningMessages, "warning", result.warnings);
     }
 
-    renderMessages(feedback, "success", [`${result.modeLabel}で基準日時点の残数を計算しました。`]);
     renderSummary(summaryCards, result.summary);
     renderRationale(rationaleList, result.rationale);
     renderGrantHistory(grantHistoryTable, result.grantHistory);
