@@ -52,6 +52,8 @@ input {
 }
 
 .segment-shell {
+  display: flex;
+  justify-content: center;
   margin-bottom: 20px;
 }
 
@@ -149,7 +151,8 @@ input {
 
 .lead {
   margin: 18px 0 0;
-  max-width: 46rem;
+  max-width: none;
+  width: 100%;
   color: var(--muted);
   font-size: 1.02rem;
 }
@@ -175,10 +178,19 @@ input {
   gap: 10px;
 }
 
+.subheading-with-tooltip {
+  margin-bottom: 16px;
+}
+
+.subheading-with-tooltip h3 {
+  margin: 0;
+}
+
 .tooltip {
   position: relative;
   display: inline-flex;
   align-items: center;
+  flex: 0 0 auto;
 }
 
 .tooltip-inline {
@@ -192,6 +204,7 @@ input {
   width: 28px;
   height: 28px;
   padding: 0;
+  line-height: 1;
   border: 1px solid rgba(15, 106, 105, 0.2);
   border-radius: 999px;
   background: rgba(15, 106, 105, 0.08);
@@ -209,7 +222,7 @@ input {
 .tooltip-bubble {
   position: absolute;
   top: calc(100% + 10px);
-  left: 0;
+  left: 50%;
   z-index: 5;
   width: min(320px, calc(100vw - 48px));
   padding: 14px 16px;
@@ -222,7 +235,7 @@ input {
   line-height: 1.6;
   opacity: 0;
   pointer-events: none;
-  transform: translateY(6px);
+  transform: translate(-50%, 6px);
   transition: opacity var(--transition), transform var(--transition);
 }
 
@@ -230,18 +243,18 @@ input {
   content: "";
   position: absolute;
   top: -7px;
-  left: 12px;
+  left: 50%;
   width: 14px;
   height: 14px;
   background: rgba(20, 37, 39, 0.96);
-  transform: rotate(45deg);
+  transform: translateX(-50%) rotate(45deg);
 }
 
 .tooltip:hover .tooltip-bubble,
 .tooltip:focus-within .tooltip-bubble {
   opacity: 1;
   pointer-events: auto;
-  transform: translateY(0);
+  transform: translate(-50%, 0);
 }
 
 .section-heading {
@@ -266,6 +279,10 @@ input {
 .form-block h3 {
   margin-bottom: 16px;
   font-size: 1.08rem;
+}
+
+.form-block .subheading-with-tooltip h3 {
+  margin-bottom: 0;
 }
 
 .field-grid {
@@ -328,7 +345,15 @@ input {
     box-shadow var(--transition);
 }
 
+.mode-card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
 .mode-card input {
+  margin: 2px 0 0;
+  flex: 0 0 auto;
   accent-color: var(--accent);
 }
 
@@ -349,13 +374,6 @@ input {
   font-size: 0.94rem;
 }
 
-.inline-note {
-  margin-top: 14px;
-  padding: 14px 16px;
-  border-radius: 16px;
-  background: rgba(15, 106, 105, 0.06);
-}
-
 .field.is-disabled {
   opacity: 0.58;
 }
@@ -369,6 +387,7 @@ input {
 .button-row {
   display: flex;
   flex-wrap: wrap;
+  justify-content: flex-end;
   gap: 12px;
   margin-top: 28px;
 }

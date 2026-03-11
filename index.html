@@ -150,28 +150,31 @@
                         ?
                       </button>
                       <div class="tooltip-bubble">
-                        モードAは今年・去年・一昨年の消化を古い付与から順に反映します。モードBは過去の詳細履歴を使わず、去年からの繰越日数をそのまま有効残として使う簡易計算です。
+                        左は今年・去年・一昨年の消化数を入れる方法、右は去年からの繰越日数をもとにざっくり残数を出す方法です。
                       </div>
                     </div>
                   </div>
                   <div class="mode-grid" role="radiogroup" aria-labelledby="mode-heading">
                     <label class="mode-card" data-mode-card="annual">
-                      <input type="radio" name="mode" value="annual" checked />
-                      <span class="mode-title">年ごとの消化数を入力する</span>
+                      <span class="mode-card-header">
+                        <input type="radio" name="mode" value="annual" checked />
+                        <span class="mode-title">年ごとの消化数を入力する</span>
+                      </span>
                       <span class="mode-copy">
-                        今年・去年・一昨年の消化日数を入力します。古い付与から順に消化へ割り当てます。
+                        今年・去年・一昨年の有休消化数を入力します。古い付与から順に差し引き、必要最小限の繰越だけ推定します。
                       </span>
                     </label>
 
                     <label class="mode-card" data-mode-card="carryover">
-                      <input type="radio" name="mode" value="carryover" />
-                      <span class="mode-title">繰越日数のみを入力する</span>
+                      <span class="mode-card-header">
+                        <input type="radio" name="mode" value="carryover" />
+                        <span class="mode-title">繰越日数のみを入力する</span>
+                      </span>
                       <span class="mode-copy">
                         過去の詳細な消化履歴が不明な場合の簡易モードです。去年からの繰越日数と今年の消化だけで残数を見積もります。
                       </span>
                     </label>
                   </div>
-                  <div id="mode-explanation" class="inline-note"></div>
                 </section>
 
                 <section class="form-block">

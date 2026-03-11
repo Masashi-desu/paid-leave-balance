@@ -1,12 +1,5 @@
 import { buildCalculatorContext, calculateLeaveBalance } from "./leave-calculator.js";
 
-const MODE_EXPLANATIONS = {
-  annual:
-    "モードAでは、今年・去年・一昨年の有休消化数を入力します。古い付与から順に差し引き、必要最小限の繰越だけ推定します。",
-  carryover:
-    "モードBでは、一昨年と去年の入力欄を止めて、去年からの繰越日数だけを使う簡易計算に切り替えます。会社の管理表などで繰越日数が分かる場合に使います。",
-};
-
 const SAMPLE_VALUES = {
   hireDate: "2020-04-01",
   baseDate: "2026-03-11",
@@ -33,8 +26,6 @@ export function initLeaveCalculatorApp() {
   const grantHistoryTable = document.querySelector("#grant-history-table");
   const consumptionTable = document.querySelector("#consumption-table");
   const expirationTable = document.querySelector("#expiration-table");
-  const modeExplanation = document.querySelector("#mode-explanation");
-
   const modeCards = Array.from(document.querySelectorAll("[data-mode-card]"));
   const cycleFields = {
     twoCyclesAgo: {
@@ -156,7 +147,6 @@ export function initLeaveCalculatorApp() {
 
   const syncModeUi = () => {
     const mode = getSelectedMode(form);
-    modeExplanation.textContent = MODE_EXPLANATIONS[mode];
 
     for (const card of modeCards) {
       card.classList.toggle("is-active", card.dataset.modeCard === mode);
