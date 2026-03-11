@@ -3,6 +3,8 @@
 日本の一般的な年次有給休暇ルールを前提に、基準日時点の残有給日数をブラウザ上で見積もる静的 Web アプリです。  
 HTML / CSS / JavaScript だけで構成し、`main` ブランチへの push を契機に GitHub Pages へデプロイできるようにしています。
 
+公開 URL: [https://masashi-desu.github.io/paid-leave-balance/](https://masashi-desu.github.io/paid-leave-balance/)
+
 ## アプリ概要
 
 - 1 ページで入力から結果表示まで完結します
@@ -126,6 +128,8 @@ python3 -m http.server 4173
 このリポジトリには `.github/workflows/deploy-pages.yml` を追加してあります。  
 `main` ブランチへ push すると、以下の流れで静的ファイルを Pages へデプロイします。
 
+現在の公開先: [https://masashi-desu.github.io/paid-leave-balance/](https://masashi-desu.github.io/paid-leave-balance/)
+
 1. `actions/checkout` でリポジトリを取得
 2. `actions/configure-pages` で Pages 用設定を初期化
 3. `index.html` / `assets/` / `.nojekyll` を `_site/` に集約
@@ -146,7 +150,7 @@ python3 -m http.server 4173
 
 1. `main` に push する
 2. GitHub Actions の `Deploy GitHub Pages` 実行が成功する
-3. 公開 URL でアプリが表示される
+3. 公開 URL [https://masashi-desu.github.io/paid-leave-balance/](https://masashi-desu.github.io/paid-leave-balance/) でアプリが表示される
 4. サンプル値を入力して、残数・付与履歴・消化反映・失効内訳が見えることを確認する
 
 ## ディレクトリ構成
