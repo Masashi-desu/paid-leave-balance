@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>paid-leave-balance | 年次有給休暇 残数計算</title>
+    <meta
+      name="description"
+      content="日本の一般的な年次有給休暇ルールを前提に、法定付与・繰越・失効を整理しながら残有給日数を見積もる静的Webアプリです。"
+    />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%230f6a69'/%3E%3Crect x='16' y='18' width='32' height='28' rx='4' fill='%23f5f2ea'/%3E%3Cpath d='M16 28h32' stroke='%230f6a69' stroke-width='4'/%3E%3Ccircle cx='24' cy='18' r='4' fill='%23d39b4a'/%3E%3Ccircle cx='40' cy='18' r='4' fill='%23d39b4a'/%3E%3C/svg%3E"
+    />
+    <link rel="stylesheet" href="assets/css/style.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">Static Web App</p>
+          <h1>年次有給休暇 残数計算</h1>
+          <p class="lead">
+            日本の一般的な付与ルールをもとに、法定付与・繰越・失効・会社独自付与を整理して、基準日時点の残有給日数を見積もります。
+          </p>
+        </div>
+        <div class="hero-panel">
+          <h2>このツールで分かること</h2>
+          <ul class="check-list">
+            <li>法定付与日数と次回付与予定日</li>
+            <li>現在サイクル開始時点の繰越</li>
+            <li>消化反映の割当結果と失効内訳</li>
+            <li>会社独自付与を含めた現在残数</li>
+          </ul>
+        </div>
+      </header>
+
+      <main class="layout">
+        <section class="panel form-panel">
+          <div class="section-heading">
+            <div>
+              <p class="section-label">Input</p>
+              <h2>入力</h2>
+            </div>
+            <p class="section-note">
+              このアプリの「付与サイクル」は、法定付与日から次回付与日の前日までの1年間です。消化日数は 0.5 日刻みで入力します。
+            </p>
+          </div>
+
+          <form id="calculator-form" novalidate>
+            <section class="form-block">
+              <h3>1. 基本情報</h3>
+              <div class="field-grid">
+                <label class="field">
+                  <span class="field-label">入社日</span>
+                  <input id="hire-date" name="hireDate" type="date" required />
+                  <span class="field-hint">例: 2020-04-01</span>
+                </label>
+
+                <label class="field">
+                  <span class="field-label">計算基準日</span>
+                  <input id="base-date" name="baseDate" type="date" required />
+                  <span class="field-hint">例: 2026-03-11</span>
+                </label>
+
+                <label class="field">
+                  <span class="field-label">週の所定労働日数</span>
+                  <input
+                    id="weekly-days"
+                    name="weeklyDays"
+                    type="number"
+                    min="1"
+                    max="5"
+                    step="1"
+                    inputmode="numeric"
+                    required
+                  />
+                  <span class="field-hint">1〜5 日で入力します。</span>
+                </label>
+
+                <label class="field">
+                  <span class="field-label">会社独自付与日数</span>
+                  <input
+                    id="additional-grant-days"
+                    name="additionalGrantDays"
+                    type="number"
+                    min="0"
+                    step="0.5"
+                    inputmode="decimal"
+                    value="0"
+                  />
+                  <span class="field-hint">基準日時点で有効な追加付与をまとめて入力します。</span>
+                </label>
+              </div>
+            </section>
+
+            <section class="form-block">
+              <h3 id="mode-heading">2. 入力モード切替</h3>
+              <div class="mode-grid" role="radiogroup" aria-labelledby="mode-heading">
+                <label class="mode-card" data-mode-card="annual">
+                  <input type="radio" name="mode" value="annual" checked />
+                  <span class="mode-title">年ごとの消化数を入力する</span>
+                  <span class="mode-copy">
+                    現在の付与サイクルと、その直前 2 サイクルの消化日数を入力します。古い付与から順に消化へ割り当てます。
+                  </span>
+                </label>
+
+                <label class="mode-card" data-mode-card="carryover">
+                  <input type="radio" name="mode" value="carryover" />
+                  <span class="mode-title">繰越日数のみを入力する</span>
+                  <span class="mode-copy">
+                    過去の詳細な消化履歴が不明な場合の簡易モードです。前年度からの繰越日数と当年度消化のみで残数を見積もります。
+                  </span>
+                </label>
+              </div>
+              <div id="mode-explanation" class="inline-note"></div>
+            </section>
+
+            <section class="form-block">
+              <h3>3. 消化・繰越入力</h3>
+              <div class="field-grid consumption-grid">
+                <label class="field field-with-note" id="two-cycles-field">
+                  <span class="field-label" id="two-cycles-label">2つ前の付与サイクルの消化日数</span>
+                  <input
+                    id="two-cycles-used"
+                    name="twoCyclesAgoUsed"
+                    type="number"
+                    min="0"
+                    step="0.5"
+                    inputmode="decimal"
+                    value="0"
+                  />
+                  <span class="field-hint" id="two-cycles-hint">
+                    入社日と基準日を入力すると対象期間を表示します。
+                  </span>
+                </label>
+
+                <label class="field field-with-note" id="previous-cycle-field">
+                  <span class="field-label" id="previous-cycle-label">1つ前の付与サイクルの消化日数</span>
+                  <input
+                    id="previous-cycle-used"
+                    name="previousCycleUsed"
+                    type="number"
+                    min="0"
+                    step="0.5"
+                    inputmode="decimal"
+                    value="0"
+                  />
+                  <span class="field-hint" id="previous-cycle-hint">
+                    入社日と基準日を入力すると対象期間を表示します。
+                  </span>
+                </label>
+
+                <label class="field field-with-note" id="current-cycle-field">
+                  <span class="field-label" id="current-cycle-label">現在の付与サイクルの消化日数</span>
+                  <input
+                    id="current-cycle-used"
+                    name="currentCycleUsed"
+                    type="number"
+                    min="0"
+                    step="0.5"
+                    inputmode="decimal"
+                    value="0"
+                  />
+                  <span class="field-hint" id="current-cycle-hint">
+                    入社日と基準日を入力すると対象期間を表示します。
+                  </span>
+                </label>
+
+                <label class="field field-with-note" id="carryover-field">
+                  <span class="field-label">前年度からの繰越日数</span>
+                  <input
+                    id="carryover-days"
+                    name="carryoverDays"
+                    type="number"
+                    min="0"
+                    step="0.5"
+                    inputmode="decimal"
+                    value="0"
+                  />
+                  <span class="field-hint" id="carryover-hint">
+                    モードB専用です。会社の管理表などで把握している現時点有効な繰越日数を入力します。
+                  </span>
+                </label>
+              </div>
+            </section>
+
+            <div class="button-row">
+              <button type="button" id="sample-button" class="secondary-button">サンプル値を入力</button>
+              <button type="reset" id="reset-button" class="ghost-button">リセット</button>
+              <button type="submit" class="primary-button">残数を計算する</button>
+            </div>
+          </form>
+        </section>
+
+        <aside class="panel guide-panel">
+          <div class="section-heading">
+            <div>
+              <p class="section-label">Guide</p>
+              <h2>計算前提</h2>
+            </div>
+          </div>
+
+          <div class="stacked-card">
+            <h3>モードA</h3>
+            <p>
+              現在サイクルと直前 2 サイクルの消化入力をもとに、古い付与から順に割り当てます。最古サイクルより前の詳細履歴は再現せず、必要最小限の繰越だけ推定します。
+            </p>
+          </div>
+
+          <div class="stacked-card">
+            <h3>モードB</h3>
+            <p>
+              詳細履歴の代わりに「前年度からの繰越日数」を直接使う簡易モードです。過去の失効や消化履歴は再現せず、今年度の残数整理に用途を絞っています。
+            </p>
+          </div>
+
+          <div class="stacked-card">
+            <h3>失効ルール</h3>
+            <p>
+              法定付与分は付与日から 2 年後に失効する前提です。半休は 0.5 日として計算し、会社独自付与は基準日時点で有効な追加分として別加算します。
+            </p>
+          </div>
+        </aside>
+      </main>
+
+      <section id="feedback" class="feedback" aria-live="polite"></section>
+
+      <section id="results" class="results is-hidden" aria-labelledby="results-heading">
+        <div class="section-heading">
+          <div>
+            <p class="section-label">Result</p>
+            <h2 id="results-heading">計算結果</h2>
+          </div>
+          <p class="section-note">要約に加えて、付与・消化・失効の根拠を表形式で確認できます。</p>
+        </div>
+
+        <div id="warning-messages" class="message-stack"></div>
+        <div id="summary-cards" class="summary-grid"></div>
+
+        <div class="panel result-panel">
+          <h3>算出根拠の概要</h3>
+          <ul id="rationale-list" class="rationale-list"></ul>
+        </div>
+
+        <div class="tables-layout">
+          <article class="panel table-panel">
+            <div class="table-heading">
+              <h3>付与履歴一覧</h3>
+              <p>法定付与イベントの一覧と、今回の計算でどこまで追跡したかを表示します。</p>
+            </div>
+            <div id="grant-history-table"></div>
+          </article>
+
+          <article class="panel table-panel">
+            <div class="table-heading">
+              <h3>消化反映一覧</h3>
+              <p>各サイクルの入力値を、古い付与からどのように割り当てたかを表示します。</p>
+            </div>
+            <div id="consumption-table"></div>
+          </article>
+
+          <article class="panel table-panel">
+            <div class="table-heading">
+              <h3>失効内訳一覧</h3>
+              <p>基準日時点までに失効した未消化分のみを表示します。</p>
+            </div>
+            <div id="expiration-table"></div>
+          </article>
+        </div>
+      </section>
+    </div>
+
+    <script type="module" src="assets/js/app.js"></script>
+  </body>
+</html>
